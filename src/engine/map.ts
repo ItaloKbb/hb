@@ -97,9 +97,10 @@ export default class HexMap implements IMap {
   ): IFloodResult {
     const bag = new Map<ICell, [ICell, number, Hex[]]>()
     const toProcess: Array<[Hex, number, Hex[]]> = [[from, 0, []]]
+    let currentIndex = 0
 
-    while (toProcess.length > 0) {
-      const [CurHex, distance, path] = toProcess.splice(0, 1)[0]
+    while (currentIndex < toProcess.length) {
+      const [CurHex, distance, path] = toProcess[currentIndex++]
       const curCell = this.cellAt(CurHex)
       if (stop(curCell, distance + 1, path)) {
         return {

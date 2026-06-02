@@ -31,6 +31,7 @@ interface IProps {
 
 export default class Unit extends React.Component<IProps, {}> {
   listeners: Array<(...args: any[]) => void>
+  mainRef: SVGGElement | null = null
 
   constructor(props: IProps, ctx) {
     super(props, ctx)
@@ -41,14 +42,18 @@ export default class Unit extends React.Component<IProps, {}> {
     ]
   }
 
+  setMainRef = (ref: SVGGElement | null) => {
+    this.mainRef = ref
+  }
+
   componentWillUnmount() {
     this.listeners.forEach(unsubscribe => unsubscribe())
   }
 
   onPerformAction = async (action: UnitAction) => {
-    if (action.unit.id === this.props.unit.id) {
+    if (action.unit.id === this.props.unit.id && this.mainRef) {
       return await anime({
-        targets: [this.refs.main],
+        targets: [this.mainRef],
         translateY: '-10',
         direction: 'alternate',
         duration: 350,
@@ -58,9 +63,9 @@ export default class Unit extends React.Component<IProps, {}> {
   }
 
   onTakeDamage = async (unit: EUnit) => {
-    if (unit.id === this.props.unit.id) {
+    if (unit.id === this.props.unit.id && this.mainRef) {
       await anime({
-        targets: [this.refs.main],
+        targets: [this.mainRef],
         opacity: 0,
         direction: 'alternate',
         loop: 8,
@@ -81,7 +86,7 @@ export default class Unit extends React.Component<IProps, {}> {
     }
     return (
       <g>
-        <g ref="main">
+        <g ref={this.setMainRef}>
           <g className={css(styles.unit)} style={unitStyle}>
             <UnitGlyph unitType={unit.type} />
           </g>

@@ -56,6 +56,8 @@ export interface IState {
 export default class Stageview extends React.Component<IProps, IState> {
   oldKeyPress: any
   store: Store
+  svgRef: SVGSVGElement | null = null
+  mapRef: SVGGElement | null = null
 
   constructor(props) {
     super(props)
@@ -68,9 +70,17 @@ export default class Stageview extends React.Component<IProps, IState> {
     }
   }
 
+  setSvgRef = (ref: SVGSVGElement | null) => {
+    this.svgRef = ref
+  }
+
+  setMapRef = (ref: SVGGElement | null) => {
+    this.mapRef = ref
+  }
+
   componentDidMount() {
-    const map = this.refs.map as SVGAElement
-    const svg = this.refs.svg as SVGAElement
+    const map = this.mapRef!
+    const svg = this.svgRef!
     const { x, y, width, height } = map.getBBox()
     svg.setAttribute(
       // tslint:disable-next-line:max-line-length
@@ -144,8 +154,8 @@ export default class Stageview extends React.Component<IProps, IState> {
         {dialog}
         <Layout justify="center" grow>
           <div className={css(styles.mapContainer)}>
-            <svg ref="svg" onMouseOut={() => this.store.hover(null)}>
-              <g ref="map">
+            <svg ref={this.setSvgRef} onMouseOut={() => this.store.hover(null)}>
+              <g ref={this.setMapRef}>
                 <Map store={this.store} />
               </g>
               <g style={{ pointerEvents: 'none' }}>
