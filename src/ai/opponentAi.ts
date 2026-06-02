@@ -13,13 +13,13 @@ export default class OpponentAi {
 
   hasCellFriendlyUnit = (c: ICell) => {
     return c.thing && c.thing instanceof Unit
-      ? c.thing.factionId === this.store.state.game.currenFaction.id
+      ? c.thing.factionId === this.store.state.game.currentFaction.id
       : false
   }
 
   hasCellEnemyUnit = (c: ICell) => {
     return c.thing && c.thing instanceof Unit
-      ? c.thing.factionId !== this.store.state.game.currenFaction.id
+      ? c.thing.factionId !== this.store.state.game.currentFaction.id
       : false
   }
 
@@ -73,7 +73,7 @@ export default class OpponentAi {
   async performTurn() {
     try {
       const { game } = this.store.state
-      const { id } = this.store.state.game.currenFaction
+      const { id } = this.store.state.game.currentFaction
       debug('ai: perform turn for faction', id)
       const units = game.factionUnits[id]
       await intervalForeach(units, this.moveUnit, 200)

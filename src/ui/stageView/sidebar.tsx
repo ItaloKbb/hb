@@ -178,7 +178,7 @@ interface IProps {
 
 export default function Sidebar({ store }: IProps) {
   const { game, hover, selection } = store.state
-  const { currenFaction, epoch } = game
+  const { currentFaction, epoch } = game
   const unit =  (hover && hover.unit) || (selection && selection.unit)
   const cell =  (hover && hover.cell) || (selection && selection.cell)
   const action = hover ? undefined : selection && selection.unit
@@ -192,7 +192,7 @@ export default function Sidebar({ store }: IProps) {
   return (
     <Layout classes={[styles.main]}>
       <div className={css(styles.container)}>
-        <h2>Turn: {epoch} ({currenFaction.name})</h2>
+        <h2>Turn: {epoch} ({currentFaction.name})</h2>
         {cellInfo}
         {unitInfo}
         {actionsInfo}

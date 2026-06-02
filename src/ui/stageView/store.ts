@@ -84,7 +84,7 @@ export default class Store extends BaseStore<IState> {
       hover: undefined,
     })
 
-    const currentFactionId = game.currenFaction.id
+    const currentFactionId = game.currentFaction.id
     if (currentFactionId !== this.state.playerFaction) {
       const opponent = new OpponentAi(this)
       await opponent.performTurn()

@@ -46,18 +46,25 @@ function weightedRandomPick(items: number[]): number {
 
 // this is greedy and more optimal solutions could be found, but it's not
 // a huge deal
-function pickOpponents(value: number, bag: IUnitType[] = []): IUnitType[] {
-  const monsters = races.monsters.filter(m => m.cost <= value)
-  if (monsters.length === 0) {
-    // no additional monsters are selectable
-    return bag
+function pickOpponents(value: number): IUnitType[] {
+  const bag: IUnitType[] = []
+  let remainingValue = value
+
+  while (remainingValue > 0) {
+    const monsters = races.monsters.filter(m => m.cost <= remainingValue)
+    if (monsters.length === 0) {
+      break
+    }
+
+    // the probability of picking a monster is the inverse of its cost
+    const probabilities = monsters.map(m => 1 / m.cost)
+    const pickedMonster = monsters[weightedRandomPick(probabilities)]
+
+    bag.push(pickedMonster)
+    remainingValue -= pickedMonster.cost
   }
 
-  // the probability of picking a monster is the inverse of its cost
-  const probabilities = monsters.map(m => 1 / m.cost)
-  const pickedMonster = monsters[weightedRandomPick(probabilities)]
-
-  return pickOpponents(value - pickedMonster.cost, [...bag, pickedMonster])
+  return bag
 }
 
 /**

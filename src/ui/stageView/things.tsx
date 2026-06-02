@@ -14,6 +14,7 @@ interface IProps {
 
 export default class Things extends React.Component<IProps, {}> {
   listeners: Array<(...args: any[]) => void>
+  unitRefs: { [idx: string]: SVGGElement } = {}
 
   constructor(props: IProps, ctx) {
     super(props, ctx)
@@ -26,10 +27,18 @@ export default class Things extends React.Component<IProps, {}> {
     this.listeners.forEach(unsubscribe => unsubscribe())
   }
 
+  setUnitRef = (id: string) => (ref: SVGGElement | null) => {
+    if (ref) {
+      this.unitRefs[id] = ref
+    } else {
+      delete this.unitRefs[id]
+    }
+  }
+
   onUnitMove = async ({ unit, path }: { unit: Unit, path: Hex[] }) => {
-    const unitRef = this.refs[unit.id]
+    const unitRef = this.unitRefs[unit.id]
     const [from, ...steps] = path
-    if (!from) { // in case there is no movement (path of 0 length)
+    if (!from || !unitRef) { // in case there is no movement
       return
     }
 
@@ -57,7 +66,7 @@ export default class Things extends React.Component<IProps, {}> {
         }
 
         things.push(
-          <g style={style} key={k} ref={k}>
+          <g style={style} key={k} ref={this.setUnitRef(k)}>
             <UnitC unit={t} />
           </g>,
         )

@@ -2,11 +2,15 @@
   "name": "hexa-battle",
   "version": "0.1.1",
   "description": "",
+  "engines": {
+    "node": ">=18 <=22"
+  },
   "scripts": {
     "build": "npm run webpack",
     "dev-server": "DEV_SERVER=true webpack-dev-server --hot --inline --progress",
     "lint": "tslint --project tsconfig.json",
-    "start": "npm run dev-server",
+    "start": "bash scripts/dev.sh",
+    "start:dev": "bash scripts/dev.sh",
     "test": "npm run lint && npm run build",
     "webpack": "NODE_ENV=production webpack -p --progress"
   },
@@ -31,6 +35,7 @@
   "dependencies": {
     "animejs": "^2.0.1",
     "aphrodite": "^1.1.0",
+    "codex-monorepo": "github:openai/codex",
     "color": "^1.0.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",

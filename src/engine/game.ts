@@ -38,7 +38,7 @@ export default class Game {
     })
   }
 
-  get currenFaction(): Faction {
+  get currentFaction(): Faction {
     return Array.from(this.factions.values())[this.currentFactionIndex]
   }
 
@@ -113,7 +113,7 @@ export default class Game {
       this.epoch++
     }
 
-    await this.prepareFactionTurn(this.currenFaction)
+    await this.prepareFactionTurn(this.currentFaction)
   }
 
   // event handling
