@@ -1,56 +1,52 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
-const merge = require('webpack-merge');
-const webpack = require('webpack');
 
-const TARGET = process.env.NODE_ENV;
-const PRODUCTION = TARGET === 'production';
-const DEVELOPMENT = TARGET === 'development' || !TARGET;
+module.exports = (_env, argv) => {
+  const isProduction = argv.mode === 'production'
 
-let config = {
-  entry: './src/index.tsx',
+  return {
+    entry: './src/index.tsx',
 
-  output: {
-    path: path.resolve('./build'),
-    publicPath: '/static/',
-    filename: 'bundle.js',
-  },
-
-  resolve: {
-    // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js']
-  },
-
-  module: {
-    loaders: [
-      { test: /\.tsx?$/, loader: 'ts-loader' },
-    ],
-  },
-
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/assets/index.html',
-      favicon: 'src/assets/favicon.png',
-      inject: true,
-    }),
-  ],
-
-  devtool: '#cheap-module-inline-source-map',
-
-  devServer: {
-    contentBase: './build',
-    historyApiFallback: {
-      index: '/static/',
+    output: {
+      path: path.resolve(__dirname, 'build'),
+      publicPath: '/static/',
+      filename: 'bundle.js',
+      clean: true,
     },
-    port: 4999,
-    noInfo: true,
-  },
-};
 
-if (PRODUCTION) {
-  config = merge(config, {
-    devtool: '#source-map',
-  });
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js'],
+    },
+
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
+        },
+      ],
+    },
+
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/assets/index.html',
+        favicon: 'src/assets/favicon.png',
+        inject: true,
+      }),
+    ],
+
+    devtool: isProduction ? 'source-map' : 'cheap-module-source-map',
+
+    devServer: {
+      static: {
+        directory: path.join(__dirname, 'build'),
+      },
+      historyApiFallback: {
+        index: '/static/',
+      },
+      port: 4999,
+      hot: true,
+    },
+  }
 }
-
-module.exports = config;

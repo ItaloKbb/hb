@@ -1,5 +1,5 @@
 import { css, StyleSheet } from 'aphrodite'
-import * as React from 'react'
+import { ReactNode } from 'react'
 
 import style from '../utils/style'
 import Layout from './layout'
@@ -60,20 +60,19 @@ const DialogControl = withStyle.classes(
   styles.control,
 )
 
-// make it pass props. maybe create withStyle HOC?
-export default class Dialog extends React.Component<{}, {}> {
-  static Title = DialogTitle
-  static Controls = DialogControls
-  static Control = DialogControl
-  static Content = DialogContent
-
-  render() {
-    return (
-      <div className={css(styles.backdrop)}>
-        <Layout classes={[styles.main]}>
-          {this.props.children}
-        </Layout>
-      </div>
-    )
-  }
+function Dialog({ children }: { children: ReactNode }) {
+  return (
+    <div className={css(styles.backdrop)}>
+      <Layout classes={[styles.main]}>
+        {children}
+      </Layout>
+    </div>
+  )
 }
+
+Dialog.Title = DialogTitle
+Dialog.Controls = DialogControls
+Dialog.Control = DialogControl
+Dialog.Content = DialogContent
+
+export default Dialog

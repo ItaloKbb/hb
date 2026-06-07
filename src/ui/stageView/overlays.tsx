@@ -1,77 +1,70 @@
-import * as React from 'react'
-
 import Hex from '../../engine/hex'
 import { objectValues } from '../../utils'
 import transform from '../utils/transform'
+import { useStoreSnapshot } from '../hooks/useStoreSnapshot'
 import * as iso from './iso'
-import { stageStoreContextTypes } from './stageContext'
-import StageStore from './store'
-import TileOverlay, { OverlayState } from './TileOverlay'
+import { useStageStore } from './stageContext'
+import { IStageState } from './store'
+import TileOverlay, { OverlayState } from './tileOverlay'
 
-export default class Overlays extends React.Component<{}, {}> {
-  static contextTypes = stageStoreContextTypes
+function computeOverlays(
+  hover: IStageState['hover'],
+  selection: IStageState['selection'],
+) {
+  const overlays = new Map<Hex, OverlayState[]>()
 
-  store: StageStore
-
-  constructor(props, context) {
-    super(props, context)
-    this.store = (context as { stageStore: StageStore }).stageStore
+  const set = (cell: Hex, style: OverlayState) => {
+    const overlay = overlays.get(cell) || []
+    overlay.push(style)
+    overlays.set(cell, overlay)
   }
 
-  computeOverlays() {
-    const overlays = new Map<Hex, OverlayState[]>()
+  if (selection) {
+    set(selection.cell.pos, 'selected')
 
-    const set = (cell: Hex, style: OverlayState) => {
-      const overlay = overlays.get(cell) || []
-      overlay.push(style)
-      overlays.set(cell, overlay)
+    const action = selection.unit && selection.unit.action
+    const paths = selection.unit && selection.unit.paths
+
+    if (action) {
+      objectValues(action.targets).forEach(t => set(t, 'target'))
+    } else if (paths) {
+      objectValues(paths).forEach(t => set(t, 'moveTarget'))
     }
-
-    const { hover, selection } = this.store.state
-    if (selection) {
-      set(selection.cell.pos, 'selected')
-
-      const action = selection.unit && selection.unit.action
-      const paths = selection.unit && selection.unit.paths
-
-      if (action) {
-        objectValues(action.targets).forEach(t => set(t, 'target'))
-      } else if (paths) {
-        objectValues(paths).forEach(t => set(t, 'moveTarget'))
-      }
-    }
-    if (hover) {
-      set(hover.cell.pos, 'hover')
-
-      const selectedUnit  = selection && selection.unit
-      const selectedAction = selectedUnit && selectedUnit.action
-      if (selectedAction) {
-        objectValues(selectedAction.area || {}).forEach(
-          t => set(t, 'areaOfEffect'),
-        )
-      }
-
-      if (!selectedUnit && hover.unit) {
-        objectValues(hover.unit.paths).forEach(t => set(t, 'moveTarget'))
-      }
-    }
-
-    return overlays
   }
+  if (hover) {
+    set(hover.cell.pos, 'hover')
 
-  render() {
-    const overlays = Array.from(this.computeOverlays().entries())
-
-    const overlaysCells = overlays .map(([pos, style], idx) => {
-      const { x, y } = iso.projectHex(pos)
-
-      return (
-        < g transform= { transform.translate(x, y).string() } key= { idx } >
-          <TileOverlay state={style} />
-        </g >
+    const selectedUnit = selection && selection.unit
+    const selectedAction = selectedUnit && selectedUnit.action
+    if (selectedAction) {
+      objectValues(selectedAction.area || {}).forEach(
+        t => set(t, 'areaOfEffect'),
       )
-    })
+    }
 
-    return <g>{overlaysCells}</g>
+    if (!selectedUnit && hover.unit) {
+      objectValues(hover.unit.paths).forEach(t => set(t, 'moveTarget'))
+    }
   }
+
+  return overlays
+}
+
+export default function Overlays() {
+  const store = useStageStore()
+  const { hover, selection } = useStoreSnapshot(store)
+
+  const overlays = Array.from(computeOverlays(hover, selection).entries())
+
+  const overlaysCells = overlays.map(([pos, style], idx) => {
+    const { x, y } = iso.projectHex(pos)
+
+    return (
+      <g transform={transform.translate(x, y).string()} key={idx}>
+        <TileOverlay state={style} />
+      </g>
+    )
+  })
+
+  return <g>{overlaysCells}</g>
 }

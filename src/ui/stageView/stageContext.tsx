@@ -1,30 +1,27 @@
-import * as React from 'react'
+import { createContext, ReactNode, useContext } from 'react'
 
 import StageStore from './store'
 
-export const stageStoreContextTypes = {
-  stageStore: React.PropTypes.instanceOf(StageStore).isRequired,
+const StageStoreContext = createContext<StageStore | null>(null)
+
+export function StageStoreProvider({
+  store,
+  children,
+}: {
+  store: StageStore
+  children: ReactNode
+}) {
+  return (
+    <StageStoreContext.Provider value={store}>
+      {children}
+    </StageStoreContext.Provider>
+  )
 }
 
-export const stageStoreChildContextTypes = stageStoreContextTypes
-
-export function getStageStoreChildContext(store: StageStore) {
-  return { stageStore: store }
-}
-
-export function withStageStore<P>(
-  Component: React.StatelessComponent<P & { store: StageStore }>,
-): React.ComponentClass<P> {
-  return class WithStageStore extends React.Component<P, {}> {
-    static contextTypes = stageStoreContextTypes
-
-    render() {
-      return (
-        <Component
-          {...this.props}
-          store={(this.context as { stageStore: StageStore }).stageStore}
-        />
-      )
-    }
+export function useStageStore(): StageStore {
+  const store = useContext(StageStoreContext)
+  if (!store) {
+    throw new Error('useStageStore must be used within StageStoreProvider')
   }
+  return store
 }

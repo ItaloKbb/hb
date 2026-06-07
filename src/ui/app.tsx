@@ -1,7 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
-import * as React from 'react'
 
-import MainStore, { IState } from './mainStore'
+import { MainStoreProvider, useMainStoreState } from './mainContext'
 import MainView from './mainView'
 import StageView from './stageView'
 import style from './utils/style'
@@ -18,29 +17,22 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class App extends React.Component<{}, IState> {
-  store: MainStore
+function AppRouter() {
+  const { currentGame } = useMainStoreState()
 
-  constructor(props) {
-    super(props)
-    this.store = new MainStore(this)
-    this.state = this.store.loadProgress()
+  if (currentGame) {
+    return <StageView />
   }
 
-  // This is just a very basic router based on the store state
-  router() {
-    if (this.state.currentGame) {
-      return <StageView store={this.store} />
-    }
+  return <MainView />
+}
 
-    return <MainView store={this.store} />
-  }
-
-  render() {
-    return (
+export default function App() {
+  return (
+    <MainStoreProvider>
       <div className={css(styles.main)}>
-        {this.router()}
+        <AppRouter />
       </div>
-    )
-  }
+    </MainStoreProvider>
+  )
 }
