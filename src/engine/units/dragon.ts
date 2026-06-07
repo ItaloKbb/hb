@@ -3,6 +3,7 @@ import { IUnitType } from '../unit'
 import { flying } from './traits'
 
 export default {
+  id: 'dragon',
   name: 'Dragon',
   description: '',
 

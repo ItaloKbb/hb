@@ -3,6 +3,7 @@ import Web from '../actions/web'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'spider',
   name: 'Spider',
   description: '',
 

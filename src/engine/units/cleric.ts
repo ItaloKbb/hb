@@ -4,6 +4,7 @@ import Sleep from '../actions/sleep'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'cleric',
   name: 'Cleric',
   description: 'Instructed in the holy scriptures and hardened by intense ' +
     'fasting and meditation, the Cleric can be a tremendous asset to any ' +

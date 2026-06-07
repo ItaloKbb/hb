@@ -4,6 +4,7 @@ import Teleport from '../actions/teleport'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'mage',
   name: 'Mage',
   description: 'Years of research in arcane knowledge has made the mage ' +
     'an invaluable resource on the battlefield. With his magic, he can ' +

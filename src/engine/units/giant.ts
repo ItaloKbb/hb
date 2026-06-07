@@ -3,6 +3,7 @@ import RollingStone from '../actions/rollingStone'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'giant',
   name: 'Giant',
   description: '',
 

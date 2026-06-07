@@ -2,6 +2,7 @@ import { rangedAttack } from '../actions/rangedAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'orcArcher',
   name: 'Orc Archer',
   description: '',
 

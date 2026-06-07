@@ -2,6 +2,7 @@ import { stoneThrow } from '../actions/stoneThrow'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'catapult',
   name: 'Catapult',
   description: 'Designed by the smartest engineers of the realm, the ' +
     'catapult is able to throw stones from a considerable ' +

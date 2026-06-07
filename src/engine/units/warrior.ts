@@ -3,6 +3,7 @@ import { meleeAttack } from '../actions/meleeAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'warrior',
   name: 'Warrior',
   description: 'The Warrior has trained all his life to fear nothing but ' +
     'dishonor. He represents the basic and most important unit of any army ' +

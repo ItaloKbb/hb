@@ -3,6 +3,7 @@ import { rangedAttack } from '../actions/rangedAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'archer',
   name: 'Archer',
   description: 'The archer is able to bring despair upon his enemies ' +
     'while they are still out of sight. He travels lightly, and he prefers ' +

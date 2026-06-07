@@ -20,6 +20,7 @@ export enum UnitStatus {
 }
 
 export interface IUnitType {
+  id: string
   name: string
   description: string
 

@@ -2,6 +2,7 @@ import { meleeAttack } from '../actions/meleeAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'knight',
   name: 'Knight',
   description: 'The knight descends into battle to bring justice and '
     + 'freedom from evil. His heavy armor and his unwavering discipline make '

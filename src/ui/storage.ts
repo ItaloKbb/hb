@@ -1,7 +1,7 @@
-import * as camelCase from 'lodash/camelCase'
 import * as store from 'store'
 
 import { IUnitType } from '../engine/unit'
+import { byId } from '../engine/units'
 import * as units from '../engine/units'
 import { debug } from '../utils'
 
@@ -19,25 +19,57 @@ interface IRawStorage {
   money: number,
 }
 
-export function load(): IStorage | null {
-  const data = store.get(KEY)
-  if (data) {
-    const rawData: IRawStorage = JSON.parse(data)
-    debug('storage: successfully loaded storage', rawData)
-    return {
-      levelReached: rawData.levelReached,
-      party: rawData.party.map(u => units[u]),
-      money: rawData.money,
-    }
+function isRawStorage(data: any): data is IRawStorage {
+  return data
+    && typeof data.levelReached === 'number'
+    && typeof data.money === 'number'
+    && Array.isArray(data.party)
+    && data.party.every(id => typeof id === 'string')
+}
+
+function resolveUnitType(storedId: string): IUnitType | undefined {
+  const unit = byId[storedId]
+  if (unit) {
+    return unit
   }
 
-  return null
+  // Legacy saves used camelCase(displayName) which matched export keys.
+  const legacyUnit = (units as {[key: string]: IUnitType})[storedId]
+  if (legacyUnit) {
+    debug('storage: resolved legacy unit id', storedId)
+    return legacyUnit
+  }
+
+  debug('storage: unknown unit id, skipping', storedId)
+  return undefined
+}
+
+export function load(): IStorage | null {
+  const data = store.get(KEY)
+  if (!data) {
+    return null
+  }
+
+  const rawData = JSON.parse(data)
+  if (!isRawStorage(rawData)) {
+    debug('storage: invalid save data, ignoring')
+    return null
+  }
+
+  debug('storage: successfully loaded storage', rawData)
+  return {
+    levelReached: rawData.levelReached,
+    party: rawData.party
+      .map(resolveUnitType)
+      .filter((unit): unit is IUnitType => unit !== undefined),
+    money: rawData.money,
+  }
 }
 
 export function save(data: IStorage): void {
   const rawData: IRawStorage = {
     levelReached: data.levelReached,
-    party: data.party.map(u => camelCase(u.name)),
+    party: data.party.map(u => u.id),
     money: data.money,
   }
   store.set(KEY, JSON.stringify(rawData))

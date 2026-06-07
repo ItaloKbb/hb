@@ -3,6 +3,7 @@ import { meleeAttack } from '../actions/meleeAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'horseman',
   name: 'Horseman',
   description: 'The valiant rider of the party is able to cover long ' +
   'distances with his mighty steed and bring fast help in the heat of the' +

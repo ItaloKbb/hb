@@ -3,6 +3,7 @@ import { twoHandedSwordAttack } from '../actions/twoHandedSwordAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'barbarian',
   name: 'Barbarian',
   description: 'Fearlessness and bloodlust substitute the mail coat of the ' +
     'savage barbarian. Wielding a massive sword, the barbarian is ' +

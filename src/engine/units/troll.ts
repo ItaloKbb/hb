@@ -2,6 +2,7 @@ import { meleeAttack } from '../actions/meleeAttack'
 import { IUnitType } from '../unit'
 
 export default {
+  id: 'troll',
   name: 'Troll',
   description: '',
 
