@@ -11,7 +11,9 @@
     "lint": "tslint --project tsconfig.json",
     "start": "bash scripts/dev.sh",
     "start:dev": "bash scripts/dev.sh",
-    "test": "npm run lint && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ci": "npm run lint && vitest run && npm run build",
     "webpack": "NODE_ENV=production webpack -p --progress"
   },
   "author": "Giacomo Tagliabue",
@@ -28,6 +30,7 @@
     "ts-loader": "^2.0.1",
     "tslint": "^4.5.1",
     "typescript": "^2.2.1",
+    "vitest": "^3.2.4",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1",
     "webpack-merge": "^4.0.0"
