@@ -2,28 +2,34 @@ import * as React from 'react'
 
 import transform from '../utils/transform'
 import * as iso from './iso'
-import Store from './store'
+import { stageStoreContextTypes } from './stageContext'
+import StageStore from './store'
 import Tile from './Tile'
 
-interface IProps {
-  store: Store,
-}
+export default class Map extends React.Component<{}, {}> {
+  static contextTypes = stageStoreContextTypes
 
-export default class Map extends React.Component<IProps, {}> {
-  shouldComponentUpdate({ store }) {
+  store: StageStore
+
+  constructor(props, context) {
+    super(props, context)
+    this.store = (context as { stageStore: StageStore }).stageStore
+  }
+
+  shouldComponentUpdate() {
     return false
   }
 
   onMouseOver = c => {
-    this.props.store.hover(c)
+    this.store.hover(c)
   }
 
   onClick = c => {
-    this.props.store.selectCell(c)
+    this.store.selectCell(c)
   }
 
   render() {
-    const cells = this.props.store.state.game.map.cells.map((c, idx) => {
+    const cells = this.store.state.game.map.cells.map((c, idx) => {
       const { x, y } = iso.projectHex(c.pos)
       return (
         <g

@@ -4,14 +4,20 @@ import Hex from '../../engine/hex'
 import { objectValues } from '../../utils'
 import transform from '../utils/transform'
 import * as iso from './iso'
-import Store from './store'
+import { stageStoreContextTypes } from './stageContext'
+import StageStore from './store'
 import TileOverlay, { OverlayState } from './TileOverlay'
 
-interface IProps {
-  store: Store,
-}
+export default class Overlays extends React.Component<{}, {}> {
+  static contextTypes = stageStoreContextTypes
 
-export default class Overlays extends React.Component<IProps, {}> {
+  store: StageStore
+
+  constructor(props, context) {
+    super(props, context)
+    this.store = (context as { stageStore: StageStore }).stageStore
+  }
+
   computeOverlays() {
     const overlays = new Map<Hex, OverlayState[]>()
 
@@ -21,7 +27,7 @@ export default class Overlays extends React.Component<IProps, {}> {
       overlays.set(cell, overlay)
     }
 
-    const { hover, selection } = this.props.store.state
+    const { hover, selection } = this.store.state
     if (selection) {
       set(selection.cell.pos, 'selected')
 

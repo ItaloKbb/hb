@@ -10,7 +10,8 @@ import Layout from '../components/layout'
 import TraitGlyph from '../components/TraitGlyph'
 import UnitGlyph from '../components/unitGlyph'
 import style from '../utils/style'
-import Store from './store'
+import { withStageStore } from './stageContext'
+import StageStore from './store'
 
 const styles = StyleSheet.create({
   main: {
@@ -78,7 +79,7 @@ function renderUnitButton(title, subtitle, icon, onClick?, selected?) {
 }
 
 function renderActionButton(
-  action: UnitAction, selectedAction: UnitAction | undefined, store: Store,
+  action: UnitAction, selectedAction: UnitAction | undefined, store: StageStore,
 ) {
   let manaCost
   if (action.manaCost) {
@@ -151,7 +152,7 @@ function renderUnitInfo(unit: Unit) {
 }
 
 function renderActions(
-  unit: Unit, selectedAction: UnitAction | undefined, store: Store,
+  unit: Unit, selectedAction: UnitAction | undefined, store: StageStore,
 ) {
   return (
     <div>
@@ -173,10 +174,10 @@ function renderTraits(unit: Unit) {
 }
 
 interface IProps {
-  store: Store,
+  store: StageStore,
 }
 
-export default function Sidebar({ store }: IProps) {
+function Sidebar({ store }: IProps) {
   const { game, hover, selection } = store.state
   const { currentFaction, epoch } = game
   const unit =  (hover && hover.unit) || (selection && selection.unit)
@@ -205,3 +206,5 @@ export default function Sidebar({ store }: IProps) {
     </Layout>
   )
 }
+
+export default withStageStore(Sidebar)

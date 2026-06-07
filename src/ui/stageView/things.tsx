@@ -6,20 +6,21 @@ import Unit from '../../engine/unit'
 import UnitC from '../stageView/unit'
 import transform from '../utils/transform'
 import * as iso from './iso'
-import Store from './store'
+import { stageStoreContextTypes } from './stageContext'
+import StageStore from './store'
 
-interface IProps {
-  store: Store,
-}
+export default class Things extends React.Component<{}, {}> {
+  static contextTypes = stageStoreContextTypes
 
-export default class Things extends React.Component<IProps, {}> {
   listeners: Array<(...args: any[]) => void>
   unitRefs: { [idx: string]: SVGGElement } = {}
+  store: StageStore
 
-  constructor(props: IProps, ctx) {
-    super(props, ctx)
+  constructor(props, context) {
+    super(props, context)
+    this.store = (context as { stageStore: StageStore }).stageStore
     this.listeners = [
-      this.props.store.state.game.listen('unit:move', this.onUnitMove),
+      this.store.state.game.listen('unit:move', this.onUnitMove),
     ]
   }
 
@@ -58,7 +59,7 @@ export default class Things extends React.Component<IProps, {}> {
 
   render() {
     const things: JSX.Element[] = []
-    this.props.store.state.game.things.forEach((t, k) => {
+    this.store.state.game.things.forEach((t, k) => {
       if (t instanceof Unit) {
         const { x, y } = iso.projectHex(t.pos)
         const style = {

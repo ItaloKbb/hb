@@ -1,11 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 
-import { UnitAction } from '../../engine/actions/action'
-import Game from '../../engine/game'
-import Hex from '../../engine/hex'
-import { ICell } from '../../engine/map'
-import Unit from '../../engine/unit'
 import Dialog from '../components/dialog'
 import Layout from '../components/layout'
 import Screen from '../components/screen'
@@ -13,8 +8,12 @@ import MainStore from '../mainStore'
 import { HEX_SIZE } from './iso'
 import Map from './map'
 import Overlays from './overlays'
+import {
+  getStageStoreChildContext,
+  stageStoreChildContextTypes,
+} from './stageContext'
 import Sidebar from './sidebar'
-import Store from './store'
+import StageStore, { IStageState } from './store'
 import Things from './things'
 
 const styles = StyleSheet.create({
@@ -27,47 +26,29 @@ export interface IProps {
   store: MainStore,
 }
 
-export interface IState {
-  playerFaction: string
-  game: Game,
+export type IState = IStageState
 
-  selection?: {
-    cell: ICell,
-    unit?: {
-      unit: Unit,
-      paths: { [idx: string]: Hex },
-      action?: {
-        action: UnitAction,
-        targets: { [idx: string]: Hex },
-        area?: { [idx: string]: Hex },
-      },
-    },
-  }
+export default class Stageview extends React.Component<IProps, {}> {
+  static childContextTypes = stageStoreChildContextTypes
 
-  hover?: {
-    cell: ICell,
-    unit?: {
-      unit: Unit,
-      paths: { [idx: string]: Hex },
-    },
-  }
-}
-
-export default class Stageview extends React.Component<IProps, IState> {
   oldKeyPress: any
-  store: Store
+  store: StageStore
   svgRef: SVGSVGElement | null = null
   mapRef: SVGGElement | null = null
+  private unsubscribe?: () => void
 
   constructor(props) {
     super(props)
     const currentGame = this.props.store.state.currentGame!
 
-    this.store = new Store(this)
-    this.state = {
+    this.store = new StageStore({
       playerFaction: currentGame.playerFaction,
       game: currentGame.game,
-    }
+    })
+  }
+
+  getChildContext() {
+    return getStageStoreChildContext(this.store)
   }
 
   setSvgRef = (ref: SVGSVGElement | null) => {
@@ -79,6 +60,8 @@ export default class Stageview extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
+    this.unsubscribe = this.store.subscribe(() => this.forceUpdate())
+
     const map = this.mapRef!
     const svg = this.svgRef!
     const { x, y, width, height } = map.getBBox()
@@ -91,7 +74,7 @@ export default class Stageview extends React.Component<IProps, IState> {
   }
 
   onKeyPress = (e: KeyboardEvent) => {
-    const { game, playerFaction, selection } = this.state
+    const { game, playerFaction, selection } = this.store.state
     const unit = selection && selection.unit && selection.unit.unit
     const action = selection && selection.unit && selection.unit.action
     const int = parseInt(e.key, 10) - 1
@@ -119,12 +102,15 @@ export default class Stageview extends React.Component<IProps, IState> {
   }
 
   componentWillUnmount() {
+    if (this.unsubscribe) {
+      this.unsubscribe()
+    }
     document.onkeypress = this.oldKeyPress
   }
 
   renderGameOver(winningFaction: string) {
     const { finishGame } = this.props.store
-    const { playerFaction } = this.state
+    const { playerFaction } = this.store.state
     const playerWon = winningFaction === playerFaction
 
     return (
@@ -143,7 +129,7 @@ export default class Stageview extends React.Component<IProps, IState> {
   }
 
   render() {
-    const winningFaction = this.state.game.checkGameOver()
+    const winningFaction = this.store.state.game.checkGameOver()
     let dialog
     if (winningFaction) {
       dialog = this.renderGameOver(winningFaction)
@@ -156,16 +142,16 @@ export default class Stageview extends React.Component<IProps, IState> {
           <div className={css(styles.mapContainer)}>
             <svg ref={this.setSvgRef} onMouseOut={() => this.store.hover(null)}>
               <g ref={this.setMapRef}>
-                <Map store={this.store} />
+                <Map />
               </g>
               <g style={{ pointerEvents: 'none' }}>
-                <Overlays store={this.store} />
-                <Things store={this.store} />
+                <Overlays />
+                <Things />
               </g>
             </svg>
           </div>
         </Layout>
-        <Sidebar store={this.store} />
+        <Sidebar />
       </Screen>
     )
   }

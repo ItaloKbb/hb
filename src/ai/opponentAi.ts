@@ -1,6 +1,6 @@
 import { ICell } from '../engine/map'
 import Unit from '../engine/unit'
-import Store from '../ui/stageView/store'
+import StageStore from '../ui/stageView/store'
 import { debug, intervalForeach } from '../utils'
 import UnitAi from './unitAi'
 
@@ -9,7 +9,7 @@ import UnitAi from './unitAi'
  * execute an action
  */
 export default class OpponentAi {
-  constructor(private store: Store) { }
+  constructor(private store: StageStore) { }
 
   hasCellFriendlyUnit = (c: ICell) => {
     return c.thing && c.thing instanceof Unit
