@@ -175,6 +175,7 @@ export default class Unit extends Thing {
           break
         case UnitStatus.Slowed:
           this.mp--
+          break
         default:
           break
       }
