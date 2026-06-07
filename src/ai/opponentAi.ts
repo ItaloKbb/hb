@@ -81,7 +81,7 @@ export default class OpponentAi {
       await this.store.endTurn()
     } catch (e) {
       if (e === 'GAME_OVER') {
-        // pass
+        return
       }
       throw e
     }
