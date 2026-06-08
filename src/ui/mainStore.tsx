@@ -5,7 +5,6 @@ import { IUnitType } from '../engine/unit'
 import * as units from '../engine/units'
 import { debug } from '../utils'
 import * as storage from './storage'
-import Store from './utils/Store'
 
 export interface IState {
   levelReached: number,
@@ -20,7 +19,42 @@ export interface IState {
   }
 }
 
-export default class MainStore extends Store<IState> {
+type Listener = () => void
+
+export default class MainStore {
+  private listeners = new Set<Listener>()
+  private _state: IState
+
+  constructor() {
+    this._state = this.loadProgress()
+  }
+
+  get state(): IState {
+    return this._state
+  }
+
+  subscribe(listener: Listener): () => void {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
+  }
+
+  private notify(cb?: () => void) {
+    this.listeners.forEach(listener => listener())
+    if (cb) {
+      cb()
+    }
+  }
+
+  private set(partial: Partial<IState>, cb?: () => void) {
+    this._state = { ...this._state, ...partial }
+    this.notify(cb)
+  }
+
+  private replaceState(state: IState, cb?: () => void) {
+    this._state = state
+    this.notify(cb)
+  }
+
   finishGame = (won: boolean) => {
     if (won) {
       const { money, currentGame } = this.state
@@ -47,8 +81,7 @@ export default class MainStore extends Store<IState> {
       currentGame: {
         game,
         level,
-        // The player faction is the first one, the rest are AIs
-        playerFaction: Array.from(game.factions.keys())[0],
+        playerFaction: Array.from(game.factions.keys())[0]!,
         reward: levelDef.reward,
       },
     })
@@ -65,14 +98,14 @@ export default class MainStore extends Store<IState> {
   resetProgress = () => {
     debug('mainStore: resetting progress')
     storage.reset()
-    this.set(this.loadProgress())
+    this.replaceState(this.loadProgress())
   }
 
-  loadProgress = () => {
+  loadProgress = (): IState => {
     return storage.load() || this.getInitialState()
   }
 
-  private getInitialState = () => {
+  private getInitialState = (): IState => {
     return {
       levelReached: 0,
       party: [units.archer, units.warrior, units.warrior, units.warrior],

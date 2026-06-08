@@ -1,15 +1,66 @@
 import OpponentAi from '../../ai/opponentAi'
 import { UnitAction } from '../../engine/actions/action'
+import Game from '../../engine/game'
 import Hex from '../../engine/hex'
 import { ICell } from '../../engine/map'
 import Unit from '../../engine/unit'
-import BaseStore from '../utils/Store'
 
-import { IState } from './index'
+export interface IStageState {
+  playerFaction: string
+  game: Game,
 
-export default class Store extends BaseStore<IState> {
+  selection?: {
+    cell: ICell,
+    unit?: {
+      unit: Unit,
+      paths: { [idx: string]: Hex },
+      action?: {
+        action: UnitAction,
+        targets: { [idx: string]: Hex },
+        area?: { [idx: string]: Hex },
+      },
+    },
+  }
+
+  hover?: {
+    cell: ICell,
+    unit?: {
+      unit: Unit,
+      paths: { [idx: string]: Hex },
+    },
+  }
+}
+
+type Listener = () => void
+
+export default class StageStore {
+  private listeners = new Set<Listener>()
+  private _state: IStageState
+
+  constructor(initialState: Pick<IStageState, 'playerFaction' | 'game'>) {
+    this._state = { ...initialState }
+  }
+
+  get state(): IStageState {
+    return this._state
+  }
+
+  subscribe(listener: Listener): () => void {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
+  }
+
+  forceUpdate = () => {
+    this.listeners.forEach(listener => listener())
+  }
+
+  private set(partial: Partial<IStageState>) {
+    this._state = { ...this._state, ...partial }
+    this.listeners.forEach(listener => listener())
+  }
+
   indexCells(hexes: Hex[]): {[idx: string]: Hex} {
-    const index = {}
+    const index: { [idx: string]: Hex } = {}
     hexes.forEach(h => index[h.toString()] = h)
     return index
   }
@@ -89,6 +140,6 @@ export default class Store extends BaseStore<IState> {
       const opponent = new OpponentAi(this)
       await opponent.performTurn()
     }
-    this.set({})
+    this.forceUpdate()
   }
 }

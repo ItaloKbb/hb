@@ -7,7 +7,7 @@ export default class Sleep extends UnitAction {
   description = 'puts a unit into an altered state in which he is unable ' +
     'to perform any action'
 
-  params: {}
+  params = {}
   manaCost = 2
 
   performAction(target: Hex) {

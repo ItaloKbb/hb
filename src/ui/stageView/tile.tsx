@@ -1,5 +1,5 @@
-import * as color from 'color'
-import * as React from 'react'
+import color from 'color'
+import { PureComponent } from 'react'
 
 import { Terrain } from '../../engine/map'
 import * as svg from '../utils/svg'
@@ -7,7 +7,7 @@ import * as iso from './iso'
 
 const WALL_HEIGHT = iso.HEX_SIZE * 2
 
-function makeTerrainStyle(fill, stroke) {
+function makeTerrainStyle(fill: string, stroke: string) {
   return {
     tile: { fill, stroke, strokeWidth: '.05%' },
     eastWall: { fill: color(fill).darken(.7).string() },
@@ -81,7 +81,7 @@ const forestDecoration = (
   <g fill="#1B4D1B" opacity={0.7}>
     <circle cx={iso.HEX_POINTS.nw.x * 0.6} cy={iso.HEX_POINTS.nw.y * 0.6} r={3} />
     <circle cx={iso.HEX_POINTS.ne.x * 0.6} cy={iso.HEX_POINTS.ne.y * 0.6} r={2.5} />
-    <circle cx={0} cy={iso.HEX_POINTS.n.y * 0.5} r={3.5} />
+    <circle cx={0} cy={0} r={3.5} />
   </g>
 )
 
@@ -108,7 +108,7 @@ export interface IProps {
   terrain: Terrain,
 }
 
-export default class Tile extends React.PureComponent<IProps, void> {
+export default class Tile extends PureComponent<IProps> {
   render() {
     return tiles[this.props.terrain]
   }

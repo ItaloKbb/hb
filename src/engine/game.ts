@@ -25,7 +25,9 @@ export default class Game {
 
   map: IMap
 
-  private subs: {[idx: string]: Array<(payload) => Promise<void>>} = {}
+  private subs: {
+    [idx: string]: Array<(payload: unknown) => Promise<void>>
+  } = {}
 
   constructor({ factions, map }: IGameConfig) {
     this.map = map
@@ -39,7 +41,8 @@ export default class Game {
   }
 
   get currentFaction(): Faction {
-    return Array.from(this.factions.values())[this.currentFactionIndex]
+    const factions = Array.from(this.factions.values())
+    return factions[this.currentFactionIndex]!
   }
 
   get factionUnits(): {[idx: string]: Unit[]} {
@@ -48,7 +51,7 @@ export default class Game {
     this.factions.forEach(f => units[f.id] = [])
     this.things.forEach(t => {
       if (t instanceof Unit) {
-        units[t.factionId].push(t)
+        units[t.factionId]!.push(t)
       }
     })
 
@@ -117,13 +120,13 @@ export default class Game {
   }
 
   // event handling
-  async emit(eventName: string, payload) {
+  async emit(eventName: string, payload: unknown) {
     debug('game: emitting event', eventName, payload)
     const subs = this.subs[eventName] || []
     await Promise.all(subs.map(cb => cb(payload)))
   }
 
-  listen(eventName: string, cb: (payload) => Promise<void>) {
+  listen(eventName: string, cb: (payload: unknown) => Promise<void>) {
     this.subs[eventName] = this.subs[eventName] || []
     this.subs[eventName].push(cb)
 

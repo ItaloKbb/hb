@@ -5,7 +5,7 @@ export default class Jump extends UnitAction {
   name = 'Jump'
   description = 'Jump over an obstacle or a pit'
 
-  params: {}
+  params = {}
 
   performAction(target: Hex) {
     return {

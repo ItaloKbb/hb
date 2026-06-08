@@ -2,11 +2,12 @@
  * pick a random element from an array
  */
 export function pickRandom<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
+  const index = Math.floor(Math.random() * array.length)
+  return array[index]!
 }
 
-export function pSetTimeout(timeout: number): Promise<any> {
-  return new Promise((resolve, reject) => setTimeout(resolve, timeout))
+export function pSetTimeout(timeout: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, timeout))
 }
 
 /**
@@ -38,5 +39,5 @@ export function getItemCircular<T>(array: T[], index: number) {
  * Object.values functionality
  */
 export function objectValues<T>(o: {[idx: string]: T}): T[] {
-  return Object.keys(o).map(k => o[k])
+  return Object.keys(o).map(k => o[k]!)
 }

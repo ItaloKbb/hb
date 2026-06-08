@@ -1,13 +1,15 @@
 const fs = require('fs')
 const path = require('path')
 
-const extractSvgPath = require('extract-svg-path')
 const _ = require('lodash')
 
 const paths = {}
 fs.readdirSync(__dirname).filter(f => f.endsWith('.svg')).forEach(file => {
   console.log(file)
-  const d = extractSvgPath(path.join(__dirname, file))
+  const svg = fs.readFileSync(path.join(__dirname, file), 'utf8')
+  const d = Array.from(svg.matchAll(/\sd="([^"]+)"/g))
+    .map(([, value]) => value)
+    .join('')
   // split the single paths
   const ds = d.split('M').slice(1).map(s => `M${s.trim()}`)
   const name = _.camelCase(file.split('.')[0])

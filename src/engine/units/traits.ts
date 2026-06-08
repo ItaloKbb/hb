@@ -5,7 +5,7 @@ export interface ITrait {
   name: string,
   description: string,
 
-  modify(unit: Unit)
+  modify(unit: Unit): void
 }
 
 export const flying: ITrait = {

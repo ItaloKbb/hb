@@ -1,5 +1,5 @@
 import { css, StyleSheet } from 'aphrodite'
-import * as React from 'react'
+import { cloneElement, ReactElement, ReactNode } from 'react'
 
 import { UnitAction } from '../../engine/actions/action'
 import { ICell, Terrain } from '../../engine/map'
@@ -7,10 +7,12 @@ import Unit, { UnitStatus } from '../../engine/unit'
 import { ITrait } from '../../engine/units/traits'
 import ActionGlyph from '../components/actionGlyph'
 import Layout from '../components/layout'
-import TraitGlyph from '../components/TraitGlyph'
+import TraitGlyph from '../components/traitGlyph'
 import UnitGlyph from '../components/unitGlyph'
+import { useStoreSnapshot } from '../hooks/useStoreSnapshot'
 import style from '../utils/style'
-import Store from './store'
+import { useStageStore } from './stageContext'
+import StageStore from './store'
 
 const styles = StyleSheet.create({
   main: {
@@ -54,19 +56,25 @@ const styles = StyleSheet.create({
   manaBar: { color: style.manaColor },
 })
 
-function renderUnitButton(title, subtitle, icon, onClick?, selected?) {
+function renderUnitButton(
+  title: ReactNode,
+  subtitle: ReactNode,
+  icon: ReactElement,
+  onClick?: () => void,
+  selected?: boolean,
+) {
   const classes = [
     styles.button,
     selected && styles.selectedAction,
     !onClick && styles.disabledAction,
   ]
-  icon = React.cloneElement(icon, {
-    classes: !onClick && styles.disabledActionIcon,
+  const styledIcon = cloneElement(icon, {
+    classes: !onClick ? styles.disabledActionIcon : undefined,
   })
 
   return (
     <Layout classes={classes} direction="row" align="center" onClick={onClick}>
-      {icon}
+      {styledIcon}
       <Layout grow>
         {title}
         <div className={css(styles.subtitle)}>
@@ -78,7 +86,9 @@ function renderUnitButton(title, subtitle, icon, onClick?, selected?) {
 }
 
 function renderActionButton(
-  action: UnitAction, selectedAction: UnitAction | undefined, store: Store,
+  action: UnitAction,
+  selectedAction: UnitAction | undefined,
+  store: StageStore,
 ) {
   let manaCost
   if (action.manaCost) {
@@ -92,7 +102,7 @@ function renderActionButton(
   const title = <span>{action.name} {manaCost}</span>
   const subtitle = action.description
   const icon = <ActionGlyph action={action} wrapped={true} />
-  const onClick = action.canExecute && (() => store.selectAction(action))
+  const onClick = action.canExecute ? () => store.selectAction(action) : undefined
   const selected = action === selectedAction
 
   return renderUnitButton(title, subtitle, icon, onClick, selected)
@@ -127,7 +137,7 @@ function renderUnitInfo(unit: Unit) {
         />
         <Layout>
           <div>
-            {unit.type.name}            
+            {unit.type.name}
           </div>
           <div>
             Satus: {statuses.join() || '—'}
@@ -151,7 +161,9 @@ function renderUnitInfo(unit: Unit) {
 }
 
 function renderActions(
-  unit: Unit, selectedAction: UnitAction | undefined, store: Store,
+  unit: Unit,
+  selectedAction: UnitAction | undefined,
+  store: StageStore,
 ) {
   return (
     <div>
@@ -172,15 +184,12 @@ function renderTraits(unit: Unit) {
   )
 }
 
-interface IProps {
-  store: Store,
-}
-
-export default function Sidebar({ store }: IProps) {
-  const { game, hover, selection } = store.state
+export default function Sidebar() {
+  const store = useStageStore()
+  const { game, hover, selection } = useStoreSnapshot(store)
   const { currentFaction, epoch } = game
-  const unit =  (hover && hover.unit) || (selection && selection.unit)
-  const cell =  (hover && hover.cell) || (selection && selection.cell)
+  const unit = (hover && hover.unit) || (selection && selection.unit)
+  const cell = (hover && hover.cell) || (selection && selection.cell)
   const action = hover ? undefined : selection && selection.unit
     && selection.unit.action && selection.unit.action.action
 

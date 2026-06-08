@@ -5,9 +5,7 @@ class Transformer {
   private transforms: string
 
   constructor(acc = '', transform?: string) {
-    if (transform) {
-      this.transforms = `${acc} ${transform}`
-    }
+    this.transforms = transform ? `${acc} ${transform}`.trim() : acc
   }
 
   translate(x: number, y: number, unit = '') {

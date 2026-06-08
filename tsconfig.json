@@ -1,14 +1,20 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "outDir": "lib",
-    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "strict": true,
     "strictNullChecks": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "lib",
     "sourceMap": true,
     "noUnusedLocals": true,
     "lib": [
       "dom",
       "es2015"
     ]
-  }
+  },
+  "include": ["src"]
 }

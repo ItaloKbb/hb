@@ -3,7 +3,7 @@ import { IAction } from '../../engine/actions/action'
 import icons from '../assets/icons'
 import Icon from './icon'
 
-import * as camelCase from 'lodash/camelCase'
+import camelCase from 'lodash/camelCase'
 
 const actionGlyphs: {[idx: string]: keyof typeof icons} = {
   fireball: 'fireRay',

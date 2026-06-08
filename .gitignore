@@ -1,5 +1,12 @@
 # Created by https://www.gitignore.io/api/node
 
+# ferramentas locais
+.ci-tools/
+# saídas temporárias
+build-out.txt
+lint-out.txt
+*-out.txt
+
 ### Node ###
 # Logs
 logs
@@ -36,6 +43,14 @@ jspm_packages
 
 # Optional npm cache directory
 .npm
+
+# TypeScript emit (se usar outDir lib/)
+lib/
+
+# editor / OS
+.cursor/
+.DS_Store
+Thumbs.db
 
 # Optional REPL history
 .node_repl_history
