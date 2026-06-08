@@ -60,7 +60,7 @@ export default class StageStore {
   }
 
   indexCells(hexes: Hex[]): {[idx: string]: Hex} {
-    const index = {}
+    const index: { [idx: string]: Hex } = {}
     hexes.forEach(h => index[h.toString()] = h)
     return index
   }

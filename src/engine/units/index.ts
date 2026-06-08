@@ -52,7 +52,7 @@ const ALL_UNITS: IUnitType[] = [
   warrior,
 ]
 
-export const byId: {[id: string]: IUnitType} = ALL_UNITS.reduce(
+export const byId = ALL_UNITS.reduce<{ [id: string]: IUnitType }>(
   (acc, unit) => {
     acc[unit.id] = unit
     return acc

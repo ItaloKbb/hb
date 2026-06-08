@@ -32,7 +32,7 @@ function className<Props>(
 function classes<Props>(
   displayName: string,
   Component: TypedComponentClass<Props & { classes: any[] }>,
-  ...baseClasses: any[],
+  ...baseClasses: any[]
 ): ComponentType<StyledComponentProps<Props>> {
   const C: any = Component
 

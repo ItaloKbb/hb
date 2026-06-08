@@ -3,7 +3,7 @@ import { IUnitType } from '../../engine/unit'
 import icons from '../assets/icons'
 import Icon from './icon'
 
-import * as camelCase from 'lodash/camelCase'
+import camelCase from 'lodash/camelCase'
 
 const unitGlyphs: {[idx: string]: keyof typeof icons} = {
   archer: 'highShot',

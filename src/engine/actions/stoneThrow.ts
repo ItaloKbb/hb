@@ -12,7 +12,7 @@ export default class StoneThrow extends UnitAction {
   name = 'Stone Throw'
   description = 'Throw a massive stone, causing area damage'
 
-  params: IParams
+  params!: IParams
 
   performAction(target: Hex) {
     const result: IActionResult = { targets: [] }

@@ -6,7 +6,7 @@ export const HEX_SIZE = 20
 
 export const SCALE_Y_FACTOR = .7
 
-function hexCorner(i): svg.IPoint {
+function hexCorner(i: number): svg.IPoint {
   const angleDeg = 60 * i
   const angleRad = Math.PI / 180 * angleDeg
   return {
@@ -34,7 +34,7 @@ export const HEX_POINTS = {
   ne: hexCorner(5),
 }
 
-export function drawHex(radius) {
+export function drawHex(radius: number) {
   const points = objectValues(HEX_POINTS)
     .map(p => svg.scale(p, radius))
   return svg.points(...points)

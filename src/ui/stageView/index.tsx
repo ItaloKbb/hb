@@ -1,6 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import { useEffect, useRef } from 'react'
 
+import Unit from '../../engine/unit'
 import Dialog from '../components/Dialog'
 import Layout from '../components/layout'
 import Screen from '../components/screen'
@@ -62,7 +63,7 @@ export default function StageView() {
       const int = parseInt(e.key, 10) - 1
 
       if (e.key === ' ' && !action) {
-        const isAval = u => u.canPerformAction || u.mp > 0
+        const isAval = (u: Unit) => u.canPerformAction || u.mp > 0
 
         const playerUnits = game.factionUnits[playerFaction]
         const currentUnitIndex = playerUnits.findIndex(u =>

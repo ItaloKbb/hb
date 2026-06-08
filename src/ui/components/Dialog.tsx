@@ -60,7 +60,7 @@ const DialogControl = withStyle.classes(
   styles.control,
 )
 
-function Dialog({ children }: { children: ReactNode }) {
+function DialogRoot({ children }: { children: ReactNode }) {
   return (
     <div className={css(styles.backdrop)}>
       <Layout classes={[styles.main]}>
@@ -70,9 +70,18 @@ function Dialog({ children }: { children: ReactNode }) {
   )
 }
 
-Dialog.Title = DialogTitle
-Dialog.Controls = DialogControls
-Dialog.Control = DialogControl
-Dialog.Content = DialogContent
+type DialogComponent = typeof DialogRoot & {
+  Title: typeof DialogTitle
+  Content: typeof DialogContent
+  Controls: typeof DialogControls
+  Control: typeof DialogControl
+}
+
+const Dialog = Object.assign(DialogRoot, {
+  Title: DialogTitle,
+  Content: DialogContent,
+  Controls: DialogControls,
+  Control: DialogControl,
+}) as DialogComponent
 
 export default Dialog

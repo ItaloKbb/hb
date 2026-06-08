@@ -14,7 +14,7 @@ export default class Fireball extends UnitAction {
   }
   manaCost = 1
 
-  performAction(target) {
+  performAction(target: Hex) {
     const { area, damage } = this.params
 
     const hits = this.game.map.thingsInRange(target, area)

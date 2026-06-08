@@ -19,8 +19,8 @@ export interface IThing {
 }
 
 export default class Thing implements IThing {
-  kind: string
+  kind!: string
   id = gid()
 
-  pos: Hex
+  pos!: Hex
 }

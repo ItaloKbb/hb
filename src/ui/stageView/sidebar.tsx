@@ -69,7 +69,7 @@ function renderUnitButton(
     !onClick && styles.disabledAction,
   ]
   const styledIcon = cloneElement(icon, {
-    classes: !onClick && styles.disabledActionIcon,
+    classes: !onClick ? styles.disabledActionIcon : undefined,
   })
 
   return (

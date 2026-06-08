@@ -10,7 +10,7 @@ export default class MeleeAttack extends UnitAction {
   name = 'Melee Attack'
   description = 'deals damage to adjacent unit'
 
-  params: IParams
+  params!: IParams
 
   performAction(target: Hex) {
     const result: IActionResult = { targets: [] }

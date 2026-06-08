@@ -2,7 +2,7 @@ import assert from '../engine/assert'
 import Faction from '../engine/faction'
 import Game from '../engine/game'
 import Hex from '../engine/hex'
-import HexMap, { IMap, Terrain } from '../engine/map'
+import HexMap, { ICell, IMap, Terrain } from '../engine/map'
 import { IUnitType } from '../engine/unit'
 import { ILevelDefinition } from './levels'
 
@@ -23,14 +23,14 @@ function tryUntil<T>(
   }
 }
 
-function getRandomCell(map: IMap) {
+function getRandomCell(map: IMap): ICell {
   const { cells } = map
-  return cells[Math.floor(Math.random() * cells.length)]
+  return cells[Math.floor(Math.random() * cells.length)]!
 }
 
-function getRandomNeighbor(map: IMap, hex: Hex) {
+function getRandomNeighbor(map: IMap, hex: Hex): Hex {
   const neighbors = hex.neighbors.filter(map.isIn)
-  return neighbors[Math.floor(Math.random() * neighbors.length)]
+  return neighbors[Math.floor(Math.random() * neighbors.length)]!
 }
 
 export default function createLevel(
@@ -68,7 +68,7 @@ export default function createLevel(
 
   // add friendly units
   party.forEach(unit => {
-    let tempPos = def.partyDeployOrigins[0]
+    let tempPos = def.partyDeployOrigins[0]!
     tryUntil(
       () => {
         tempPos = getRandomNeighbor(map, tempPos)
@@ -84,7 +84,7 @@ export default function createLevel(
   // add enemy units
   def.opponents.forEach((amount, unit) => {
     while (amount > 0) {
-      let tempPos = def.partyDeployOrigins[1]
+      let tempPos = def.partyDeployOrigins[1]!
       tryUntil(
         () => {
           tempPos = getRandomNeighbor(map, tempPos)

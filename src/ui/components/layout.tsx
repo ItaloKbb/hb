@@ -1,8 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
-import * as React from 'react'
 
 import { StyledComponentProps } from './withStyle'
-
 const styles = StyleSheet.create({
   layout: {
     display: 'flex',
@@ -62,7 +60,7 @@ export default function Layout({
     Component = 'div',
     wrap = 'initial',
     classes,
-    ...props,
+    ...props
 }: StyledComponentProps<IProps>) {
   return (
     <Component
@@ -72,7 +70,7 @@ export default function Layout({
         alignStyles[align],
         justifyStyles[justify],
         styles[direction],
-        wrapStyles[wrap],
+        wrap !== 'initial' && wrapStyles[wrap],
         classes,
       )}
     />

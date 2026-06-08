@@ -11,7 +11,7 @@ export default class TwoHandedSwordAttack extends UnitAction {
   name = 'Two Handed Sword Attack'
   description = 'deals damage to three adjacent units at once'
 
-  params: IParams
+  params!: IParams
 
   performAction(target: Hex) {
     const targetDir = this.unit.pos.getNeighborDirection(target)

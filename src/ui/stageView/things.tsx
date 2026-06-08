@@ -1,13 +1,13 @@
-import * as anime from 'animejs'
+import anime from 'animejs'
 import { useEffect, useRef } from 'react'
 
 import Hex from '../../engine/hex'
 import Unit from '../../engine/unit'
-import UnitC from '../stageView/unit'
 import transform from '../utils/transform'
 import { useStoreSnapshot } from '../hooks/useStoreSnapshot'
 import * as iso from './iso'
 import { useStageStore } from './stageContext'
+import UnitC from './unit'
 
 export default function Things() {
   const store = useStageStore()
@@ -16,7 +16,8 @@ export default function Things() {
   const unitRefs = useRef<{ [idx: string]: SVGGElement }>({})
 
   useEffect(() => {
-    const onUnitMove = async ({ unit, path }: { unit: Unit, path: Hex[] }) => {
+    const onUnitMove = async (payload: unknown) => {
+      const { unit, path } = payload as { unit: Unit, path: Hex[] }
       const unitRef = unitRefs.current[unit.id]
       const [from, ...steps] = path
       if (!from || !unitRef) {

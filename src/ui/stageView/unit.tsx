@@ -1,4 +1,4 @@
-import * as anime from 'animejs'
+import anime from 'animejs'
 import { css, StyleSheet } from 'aphrodite'
 import { useEffect, useRef } from 'react'
 
@@ -35,7 +35,8 @@ export default function Unit({ unit }: IProps) {
   useEffect(() => {
     const { game } = unit
 
-    const onPerformAction = async (action: UnitAction) => {
+    const onPerformAction = async (payload: unknown) => {
+      const action = payload as UnitAction
       if (action.unit.id === unit.id && mainRef.current) {
         return await anime({
           targets: [mainRef.current],
@@ -47,7 +48,8 @@ export default function Unit({ unit }: IProps) {
       }
     }
 
-    const onTakeDamage = async (damagedUnit: EUnit) => {
+    const onTakeDamage = async (payload: unknown) => {
+      const damagedUnit = payload as EUnit
       if (damagedUnit.id === unit.id && mainRef.current) {
         await anime({
           targets: [mainRef.current],

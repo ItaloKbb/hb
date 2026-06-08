@@ -42,19 +42,6 @@ export default function MainView() {
     store.startGame(levelReached)
   }
 
-  const renderLevelButton = (_: unknown, levelNumber: number) => {
-    const reached = levelReached === levelNumber
-    return (
-      <h3
-        className={css(reached ? styles.button : styles.blockedLevel)}
-        onClick={reached ? () => store.startGame(levelNumber) : undefined}
-        key={levelNumber}
-      >
-        Level {levelNumber + 1}
-      </h3>
-    )
-  }
-
   const renderPartyUnit = (unit: IUnitType, idx: number) => (
     <UnitGlyph unitType={unit} key={idx} wrapped={true} />
   )

@@ -26,8 +26,8 @@ export interface IAction {
 }
 
 export class UnitAction implements IAction {
-  name: string
-  description: string
+  name!: string
+  description!: string
 
   params: any = {}
 

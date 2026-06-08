@@ -1,4 +1,4 @@
-import * as store from 'store'
+import store from 'store'
 
 import { IUnitType } from '../engine/unit'
 import { byId } from '../engine/units'
@@ -24,7 +24,7 @@ function isRawStorage(data: any): data is IRawStorage {
     && typeof data.levelReached === 'number'
     && typeof data.money === 'number'
     && Array.isArray(data.party)
-    && data.party.every(id => typeof id === 'string')
+    && data.party.every((id: string) => typeof id === 'string')
 }
 
 function resolveUnitType(storedId: string): IUnitType | undefined {
@@ -34,7 +34,7 @@ function resolveUnitType(storedId: string): IUnitType | undefined {
   }
 
   // Legacy saves used camelCase(displayName) which matched export keys.
-  const legacyUnit = (units as {[key: string]: IUnitType})[storedId]
+  const legacyUnit = (units as unknown as Record<string, IUnitType>)[storedId]
   if (legacyUnit) {
     debug('storage: resolved legacy unit id', storedId)
     return legacyUnit
@@ -50,7 +50,7 @@ export function load(): IStorage | null {
     return null
   }
 
-  const rawData = JSON.parse(data)
+  const rawData = JSON.parse(String(data))
   if (!isRawStorage(rawData)) {
     debug('storage: invalid save data, ignoring')
     return null

@@ -11,7 +11,7 @@ export default class RangedAttack extends UnitAction {
   name = 'Ranged Attack'
   description = 'Throw a ranged attack that reaches distant enemies'
 
-  params: IParams
+  params!: IParams
 
   performAction(target: Hex) {
     const result: IActionResult = { targets: [] }

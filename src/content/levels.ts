@@ -20,7 +20,7 @@ const STARTING_ENEMY_VALUE = 10
 const MIN_MAP_SIZE = 5
 const MAX_MAP_SIZE = 10
 
-function cellsInMap(size: number) {
+function cellsInMap(size: number): number {
   // XXX there might be a better way to calculate this, but yolo
   if (size === 1) {
     return 1
@@ -73,7 +73,7 @@ function pickOpponents(value: number): IUnitType[] {
  * - reward: enemy_sum_cost * Max(20 - N, 1) / 20
  * - map_size: Max(Floor(5 + (N / 3)), 10)
  */
-export function generateLevel(number): ILevelDefinition {
+export function generateLevel(number: number): ILevelDefinition {
   const enemyValue = STARTING_ENEMY_VALUE + number * 10
   const reward = Math.floor(enemyValue * Math.max(20 - number, 1) / 70)
   const mapSize = Math.min(MIN_MAP_SIZE + Math.floor(number / 3), MAX_MAP_SIZE)

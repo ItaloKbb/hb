@@ -1,5 +1,8 @@
 // TODO add DEV/PROD silence
-export default function assert(cond, message) {
+export default function assert(
+  cond: unknown,
+  message: string,
+): asserts cond {
   if (!cond) {
     throw new Error(`[ASSERTION ERROR], ${message}`)
   }

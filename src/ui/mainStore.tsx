@@ -81,7 +81,7 @@ export default class MainStore {
       currentGame: {
         game,
         level,
-        playerFaction: Array.from(game.factions.keys())[0],
+        playerFaction: Array.from(game.factions.keys())[0]!,
         reward: levelDef.reward,
       },
     })

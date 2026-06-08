@@ -5,7 +5,7 @@ export default class Teleport extends UnitAction {
   name = 'Teleport'
   description = 'Instantly teleport the unit on a free area'
 
-  params: {}
+  params = {}
   manaCost = 2
 
   performAction(target: Hex) {
