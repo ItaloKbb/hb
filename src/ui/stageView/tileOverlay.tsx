@@ -12,37 +12,97 @@ interface IProps {
 }
 
 const styles = StyleSheet.create({
-  main: {
-    fill: 'transparent',
-    strokeWidth: '.2%',
+  base: {
+    pointerEvents: 'none',
   },
-
-  selected: {
-    stroke: style.gold,
+  fill: {
+    strokeWidth: 0,
   },
-
-  hover: {
-    stroke: 'rgba(0, 0, 0, 0.3)',
+  stroke: {
+    fill: 'none',
+    strokeWidth: 1.4,
   },
-
-  target: {
-    fill: 'rgba(255, 0, 0, 0.1)',
+  selectedFill: {
+    fill: style.overlay.selected,
+    opacity: 0.75,
   },
-  moveTarget: {
-    fill: 'rgba(255, 255, 255, 0.1)',
+  selectedStroke: {
+    stroke: style.overlay.selectedStroke,
+    strokeWidth: 1.8,
   },
-
-  areaOfEffect: {
-    fill: 'rgba(255, 0, 0, 0.2)', stroke: 'rgba(255, 0, 0, 0.2)',
+  hoverFill: {
+    fill: style.overlay.hover,
+  },
+  hoverStroke: {
+    stroke: style.overlay.hoverStroke,
+    strokeWidth: 1.2,
+  },
+  targetFill: {
+    fill: style.overlay.target,
+  },
+  targetStroke: {
+    stroke: style.overlay.targetStroke,
+    strokeWidth: 1.4,
+  },
+  moveFill: {
+    fill: style.overlay.moveTarget,
+  },
+  moveStroke: {
+    stroke: style.overlay.moveStroke,
+    strokeWidth: 1,
+    strokeDasharray: '3 2',
+  },
+  areaFill: {
+    fill: style.overlay.areaOfEffect,
+  },
+  areaStroke: {
+    stroke: style.overlay.targetStroke,
+    strokeWidth: 1.6,
   },
 })
+
+function pickStyles(states: OverlayState[]) {
+  const fill: object[] = [styles.base, styles.fill]
+  const stroke: object[] = [styles.base, styles.stroke]
+
+  if (states.includes('areaOfEffect')) {
+    fill.push(styles.areaFill)
+    stroke.push(styles.areaStroke)
+  } else if (states.includes('target')) {
+    fill.push(styles.targetFill)
+    stroke.push(styles.targetStroke)
+  } else if (states.includes('selected')) {
+    fill.push(styles.selectedFill)
+    stroke.push(styles.selectedStroke)
+  } else if (states.includes('hover')) {
+    fill.push(styles.hoverFill)
+    stroke.push(styles.hoverStroke)
+  } else if (states.includes('moveTarget')) {
+    fill.push(styles.moveFill)
+    stroke.push(styles.moveStroke)
+  }
+
+  return { fill, stroke }
+}
 
 export default class TileOverlay extends PureComponent<IProps> {
   render() {
     const { state, ...props } = this.props
-    const classes = css(styles.main, state.map(s => styles[s]))
+    const { fill, stroke } = pickStyles(state)
+    const points = iso.drawHex(0.93)
+
+    const pulse = state.includes('selected')
+      && !state.includes('areaOfEffect')
+      && !state.includes('target')
+
     return (
-      <polygon points={iso.drawHex(.96)} className={classes} {...props} />
+      <g {...props}>
+        <polygon points={points} className={css(...fill)} />
+        <polygon
+          points={points}
+          className={`${css(...stroke)}${pulse ? ' overlay-selected-pulse' : ''}`}
+        />
+      </g>
     )
   }
 }

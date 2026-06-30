@@ -2,7 +2,7 @@ import Hex from '../../engine/hex'
 import { objectValues } from '../../utils'
 import * as svg from '../utils/svg'
 
-export const HEX_SIZE = 20
+export const HEX_SIZE = 34
 
 export const SCALE_Y_FACTOR = .7
 

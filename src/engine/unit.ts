@@ -2,8 +2,9 @@ import { UnitAction } from './actions/action'
 import assert from './assert'
 import Game from './game'
 import Hex from './hex'
-import { ICell, Terrain } from './map'
+import { ICell } from './map'
 import Thing from './thing'
+import { getMoveCost, getTerrainConfig, isWalkableTerrain } from './terrain'
 import { ITrait } from './units/traits'
 
 export interface IUnitConfig {
@@ -55,8 +56,6 @@ export default class Unit extends Thing {
 
   actions: UnitAction[]
 
-  walkableTerrains = new Set([Terrain.Ground, Terrain.Water, Terrain.Forest])
-
   constructor(game: Game, { pos, factionId, type }: IUnitConfig) {
     super()
     this.pos = pos
@@ -95,6 +94,7 @@ export default class Unit extends Thing {
     if (this.status.has(UnitStatus.Guard)) {
       modifier++
     }
+    modifier += getTerrainConfig(this.game.map.cellAt(this.pos).terrain).defenseBonus
     return this.type.resistance + modifier
   }
 
@@ -123,12 +123,14 @@ export default class Unit extends Thing {
 
   async move(to: Hex) {
     const from = this.pos
-    const [, distance, path] = this.game.map.flood(
+    const moveCost = (cell: ICell) => getMoveCost(cell.terrain)
+    const [, cost, path] = this.game.map.flood(
       this.pos,
-      d => d.pos.equals(to),
+      cell => cell.pos.equals(to),
       this.canWalkOn,
+      moveCost,
     ).found!
-    this.mp -= distance
+    this.mp -= cost
     this.game.moveThing(this, to)
     this.pos = to
 
@@ -140,11 +142,15 @@ export default class Unit extends Thing {
       return []
     }
 
+    const moveCost = (cell: ICell) => getMoveCost(cell.terrain)
     return this.game.map.flood(
       this.pos,
-      (_, d) => d > this.mp,
+      () => false,
       this.canWalkOn,
-    ).paths.map(([c]) => c.pos)
+      moveCost,
+    ).paths
+      .filter(([, cost]) => cost > 0 && cost <= this.mp)
+      .map(([cell]) => cell.pos)
   }
 
   canWalkOn = (cell: ICell) => {
@@ -152,7 +158,7 @@ export default class Unit extends Thing {
       return false
     }
 
-    return this.walkableTerrains.has(cell.terrain)
+    return isWalkableTerrain(cell.terrain)
   }
 
   alterStatus(state: UnitStatus, exp: number) {

@@ -29,11 +29,12 @@ export default function Things() {
         const cTo = iso.projectHex(p)
         await anime({
           targets: [unitRef],
-          translateX: [cFrom.x, cTo.x],
-          translateY: [cFrom.y, cTo.y],
+          translateX: [0, cTo.x - cFrom.x],
+          translateY: [0, cTo.y - cFrom.y],
           easing: 'easeInOutQuad',
           duration: 100,
         }).finished
+        unitRef.style.transform = transform.translate(cTo.x, cTo.y, 'px').string()
         cFrom = cTo
       }
     }
@@ -49,21 +50,31 @@ export default function Things() {
     }
   }
 
-  const things: JSX.Element[] = []
-  store.state.game.things.forEach((t, k) => {
-    if (t instanceof Unit) {
-      const { x, y } = iso.projectHex(t.pos)
-      const style = {
-        transform: transform.translate(x, y, 'px').string(),
-      }
+  const { selection } = useStoreSnapshot(store)
+  const selectedUnitId = selection?.unit?.unit?.id
 
-      things.push(
-        <g style={style} key={k} ref={setUnitRef(k)}>
-          <UnitC unit={t} />
-        </g>,
-      )
-    }
-  })
+  const units = Array.from(store.state.game.things.entries())
+    .filter((entry): entry is [string, Unit] => entry[1] instanceof Unit)
+    .sort(([, a], [, b]) => {
+      const pa = iso.projectHex(a.pos)
+      const pb = iso.projectHex(b.pos)
+      return pa.y - pb.y || pa.x - pb.x
+    })
 
-  return <g>{things}</g>
+  return (
+    <g>
+      {units.map(([id, unit]) => {
+        const { x, y } = iso.projectHex(unit.pos)
+        return (
+          <g
+            style={{ transform: transform.translate(x, y, 'px').string() }}
+            key={id}
+            ref={setUnitRef(id)}
+          >
+            <UnitC unit={unit} selected={unit.id === selectedUnitId} />
+          </g>
+        )
+      })}
+    </g>
+  )
 }

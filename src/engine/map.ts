@@ -35,11 +35,13 @@ export interface IMap {
    * @param from the starting position
    * @param stop determines when to stop the flooding
    * @param predicate determines if a cell can be flooded
+   * @param costOf movement cost to enter a cell (defaults to 1)
    */
   flood(
     from: Hex,
-    stop: (cell: ICell, distance: number, path: Hex[]) => boolean,
+    stop: (cell: ICell, cost: number, path: Hex[]) => boolean,
     predicate: (cell: ICell) => boolean,
+    costOf?: (cell: ICell) => number,
   ): IFloodResult
 }
 
@@ -92,34 +94,52 @@ export default class HexMap implements IMap {
 
   flood(
     from: Hex,
-    stop: (cell: ICell, distance: number, path: Hex[]) => boolean,
+    stop: (cell: ICell, cost: number, path: Hex[]) => boolean,
     predicate: (cell: ICell) => boolean,
+    costOf: (cell: ICell) => number = () => 1,
   ): IFloodResult {
-    const bag = new Map<ICell, [ICell, number, Hex[]]>()
+    const bag = new Map<string, [ICell, number, Hex[]]>()
+    const bestCost = new Map<string, number>()
     const toProcess: Array<[Hex, number, Hex[]]> = [[from, 0, []]]
     let currentIndex = 0
 
     while (currentIndex < toProcess.length) {
-      const [CurHex, distance, path] = toProcess[currentIndex++]
-      const curCell = this.cellAt(CurHex)
-      if (stop(curCell, distance + 1, path)) {
+      const [curHex, cost, path] = toProcess[currentIndex++]
+      const key = curHex.toString()
+      const known = bestCost.get(key)
+      if (known !== undefined && known < cost) {
+        continue
+      }
+
+      const curCell = this.cellAt(curHex)
+      if (stop(curCell, cost, path)) {
         return {
           paths: Array.from(bag.values()),
-          found: [curCell, distance, path],
+          found: [curCell, cost, path],
         }
       }
-      const newCells = CurHex.neighbors
-        .filter(this.isIn).map(this.cellAt).filter(predicate)
 
-      newCells.forEach(c => {
-        if (bag.has(c)) {
-          return
-        } else {
-          bag.set(c, [c, distance + 1, path])
-          const newPath = [...path, c.pos]
-          toProcess.push([c.pos, distance + 1, newPath])
+      bestCost.set(key, cost)
+      const existing = bag.get(key)
+      if (!existing || existing[1] > cost) {
+        bag.set(key, [curCell, cost, path])
+      }
+
+      for (const neighborHex of curHex.neighbors.filter(this.isIn)) {
+        const neighbor = this.cellAt(neighborHex)
+        if (!predicate(neighbor)) {
+          continue
         }
-      })
+
+        const newCost = cost + costOf(neighbor)
+        const nKey = neighborHex.toString()
+        const nKnown = bestCost.get(nKey)
+        if (nKnown !== undefined && nKnown <= newCost) {
+          continue
+        }
+
+        toProcess.push([neighborHex, newCost, [...path, neighborHex]])
+      }
     }
 
     return { paths: Array.from(bag.values()) }

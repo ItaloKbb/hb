@@ -109,7 +109,7 @@ export default class MainStore {
     return {
       levelReached: 0,
       party: [units.archer, units.warrior, units.warrior, units.warrior],
-      money: 0,
+      money: 8,
     }
   }
 

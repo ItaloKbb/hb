@@ -5,41 +5,62 @@ import style from '../utils/style'
 import Layout from './layout'
 import withStyle from './withStyle'
 
+const Z_DIALOG = 1000
+
 const styles = StyleSheet.create({
-  main: {
-    textAlign: 'center',
-    position: 'absolute',
-    left: 100, right: 100,
-    background: style.darkGrey,
-    border: style.border,
-    margin: '100px 0',
-  },
   backdrop: {
     position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(128, 128, 128, 0.5)',
-    zIndex: 1,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: Z_DIALOG,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    background: 'rgba(4, 6, 10, 0.82)',
+    backdropFilter: 'blur(3px)',
     overflow: 'auto',
   },
+  main: {
+    textAlign: 'center',
+    position: 'relative',
+    flexShrink: 0,
+    maxWidth: 640,
+    width: '100%',
+    background: style.panel,
+    border: style.border,
+    boxShadow: '0 16px 48px rgba(0, 0, 0, 0.65)',
+  },
   controls: {
-    borderTop: style.border,
+    borderTop: `1px solid ${style.goldDark}`,
   },
   control: {
-    borderRight: style.border,
-    padding: 20,
+    borderRight: `1px solid ${style.goldDark}`,
+    padding: 16,
     cursor: 'pointer',
+    color: style.gold,
+    ':hover': {
+      background: style.surfaceLight,
+      color: style.textColor,
+    },
     ':last-child': {
       borderRight: 0,
     },
   },
   content: {
-    padding: 20,
+    padding: 24,
     overflow: 'auto',
+    color: style.textColor,
+    textAlign: 'left',
   },
   title: {
-    borderBottom: style.border,
-    paddingBottom: 20,
+    borderBottom: `1px solid ${style.goldDark}`,
+    paddingBottom: 16,
     marginBottom: 0,
+    color: style.gold,
+    letterSpacing: 2,
   },
 })
 
@@ -63,9 +84,9 @@ const DialogControl = withStyle.classes(
 function DialogRoot({ children }: { children: ReactNode }) {
   return (
     <div className={css(styles.backdrop)}>
-      <Layout classes={[styles.main]}>
+      <div className={css(styles.main)}>
         {children}
-      </Layout>
+      </div>
     </div>
   )
 }

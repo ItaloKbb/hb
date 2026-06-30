@@ -5,7 +5,27 @@
   <meta charset="UTF-8" />
   <title>Hexa Battle</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css">
-  <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0c0e14; }
+    ::selection { background: rgba(212, 168, 75, 0.35); color: #fff; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #161a24; }
+    ::-webkit-scrollbar-thumb { background: #8a6420; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d4a84b; }
+    @keyframes overlay-pulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 0.9; }
+    }
+    .overlay-selected-pulse {
+      animation: overlay-pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes title-glow {
+      0%, 100% { text-shadow: 0 2px 12px rgba(212,168,75,0.3); }
+      50% { text-shadow: 0 2px 20px rgba(212,168,75,0.55); }
+    }
+  </style>
 </head>
 
 <body>

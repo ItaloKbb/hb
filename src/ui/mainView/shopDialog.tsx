@@ -10,26 +10,45 @@ import { useMainStore, useMainStoreState } from '../mainContext'
 import style from '../utils/style'
 
 const styles = StyleSheet.create({
-  main: {
-    textAlign: 'center',
-    background: style.darkGrey,
-    color: style.textColor,
-    position: 'absolute',
-    left: 0, top: 0, right: 0, bottom: 0,
-    border: style.border,
-  },
-  button: {
+  unitButton: {
     cursor: 'pointer',
+    padding: 8,
+    background: style.surface,
+    border: `1px solid ${style.surfaceLight}`,
+    minWidth: 72,
     ':hover': {
-      color: 'white',
-      stroke: 'white',
+      borderColor: style.gold,
+      background: style.surfaceLight,
     },
   },
-  blockedLevel: {
-    opacity: .6,
+  unitButtonDisabled: {
+    opacity: 0.4,
+    cursor: 'default',
+  },
+  price: {
+    color: style.gold,
+    marginTop: 4,
   },
   description: {
-    paddingTop: 10,
+    padding: '12px 0',
+    color: style.textMuted,
+    minHeight: 48,
+    fontStyle: 'italic',
+  },
+  cart: {
+    padding: 12,
+    background: style.surface,
+    border: `1px solid ${style.surfaceLight}`,
+    minHeight: 64,
+  },
+  remaining: {
+    color: style.gold,
+    fontSize: 22,
+    marginTop: 12,
+  },
+  sectionLabel: {
+    color: style.gold,
+    margin: '16px 0 8px',
   },
 })
 
@@ -52,22 +71,27 @@ export default function ShopDialog({ onCancel }: IProps) {
     }
   }
 
-  const renderUnitButton = (unit: IUnitType, idx: number) => (
-    <div
-      className={css(styles.button)}
-      key={idx}
-      onClick={() => onSelectUnit(unit)}
-      onMouseOver={() => setHoveredUnit(unit)}
-    >
-      <Layout>
-        <UnitGlyph unitType={unit} wrapped={true} />
-        {unit.cost}💰
-      </Layout>
-    </div>
-  )
+  const renderUnitButton = (unit: IUnitType, idx: number) => {
+    const canAfford = remainingMoney >= unit.cost
+    return (
+      <div
+        className={css(styles.unitButton, !canAfford && styles.unitButtonDisabled)}
+        key={idx}
+        onClick={() => onSelectUnit(unit)}
+        onMouseOver={() => setHoveredUnit(unit)}
+      >
+        <Layout align="center">
+          <UnitGlyph unitType={unit} wrapped={true} />
+          <span className={css(styles.price)}>{unit.cost}💰</span>
+        </Layout>
+      </div>
+    )
+  }
 
   const onPurchase = () => {
-    store.purchase(cart, totalCost)
+    if (cart.length > 0) {
+      store.purchase(cart, totalCost)
+    }
     onCancel()
   }
 
@@ -75,23 +99,23 @@ export default function ShopDialog({ onCancel }: IProps) {
     <Dialog>
       <Dialog.Title>SHOP</Dialog.Title>
       <Dialog.Content>
-        <h3>Select</h3>
-        <div>
-          <Layout direction="row" justify="space-around">
-            {races.humans.map(renderUnitButton)}
-          </Layout>
-        </div>
-        <div className={css(styles.description)}>
-          {hoveredUnit && hoveredUnit.description}
-        </div>
-        <h3>Selected</h3>
-        <Layout direction="row" wrap="wrap" justify="center" grow>
-          {cart.map((u, idx) => (
-            <span key={idx}><UnitGlyph unitType={u} wrapped={true}/></span>
-          ))}
+        <h3 className={css(styles.sectionLabel)}>Recruit</h3>
+        <Layout direction="row" justify="space-around" wrap="wrap">
+          {races.humans.map(renderUnitButton)}
         </Layout>
-        <div>
-          💰 {remainingMoney} Remaining
+        <div className={css(styles.description)}>
+          {hoveredUnit ? hoveredUnit.description : 'Hover a unit to see details'}
+        </div>
+        <h3 className={css(styles.sectionLabel)}>Cart</h3>
+        <Layout direction="row" wrap="wrap" justify="center" classes={[styles.cart]}>
+          {cart.length === 0
+            ? <span style={{ color: style.textMuted }}>No units selected</span>
+            : cart.map((u, idx) => (
+              <span key={idx}><UnitGlyph unitType={u} wrapped={true}/></span>
+            ))}
+        </Layout>
+        <div className={css(styles.remaining)}>
+          💰 {remainingMoney} remaining
         </div>
       </Dialog.Content>
       <Dialog.Controls>

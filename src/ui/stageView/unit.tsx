@@ -9,7 +9,7 @@ import { ICON_SIZE } from '../components/icon'
 import UnitGlyph from '../components/unitGlyph'
 import style from '../utils/style'
 import transform from '../utils/transform'
-import { HEX_SIZE } from './iso'
+import { HEX_SIZE, drawHex } from './iso'
 
 const SCALE_FACTOR = HEX_SIZE / ICON_SIZE
 
@@ -17,20 +17,29 @@ const styles = StyleSheet.create({
   unit: {
     transform: transform.scaleY(SCALE_FACTOR).scaleX(SCALE_FACTOR).string(),
     strokeWidth: '2%',
+    filter: 'url(#unitGlow)',
+  },
+  groundShadow: {
+    fill: 'rgba(0, 0, 0, 0.45)',
+  },
+  platform: {
+    opacity: 0.28,
   },
   backBarStyle: {
-    stroke: 'black',
-    strokeWidth: '.5px',
-    fill: 'black',
+    stroke: style.surfaceLight,
+    strokeWidth: 0.25,
+    fill: 'rgba(0, 0, 0, 0.6)',
   },
 })
 
 interface IProps {
   unit: EUnit,
+  selected?: boolean,
 }
 
-export default function Unit({ unit }: IProps) {
+export default function Unit({ unit, selected }: IProps) {
   const mainRef = useRef<SVGGElement>(null)
+  const factionColor = unit.faction.color
 
   useEffect(() => {
     const { game } = unit
@@ -71,35 +80,70 @@ export default function Unit({ unit }: IProps) {
   }, [unit])
 
   const barProps = {
-    x: -5, height: 1, width: 10, backClasses: [styles.backBarStyle],
+    x: -6, height: 1, width: 12, backClasses: [styles.backBarStyle],
   }
 
   const unitStyle = {
-    stroke: unit.faction.color,
+    stroke: factionColor,
+    fill: style.textColor,
   }
 
   return (
     <g>
-      <g ref={mainRef}>
+      <ellipse
+        className={css(styles.groundShadow)}
+        cx={0}
+        cy={10}
+        rx={10}
+        ry={3.2}
+      />
+      {selected && (
+        <g filter="url(#selectedRing)">
+          <polygon
+            fill="none"
+            stroke={style.gold}
+            strokeWidth={0.7}
+            opacity={0.85}
+            points={drawHex(0.42)}
+            transform="translate(0, 8)"
+          >
+            <animate
+              attributeName="opacity"
+              values="0.5;0.95;0.5"
+              dur="1.8s"
+              repeatCount="indefinite"
+            />
+          </polygon>
+        </g>
+      )}
+      <polygon
+        className={css(styles.platform)}
+        points={drawHex(0.38)}
+        fill={factionColor}
+        stroke={factionColor}
+        strokeWidth={0.4}
+        transform="translate(0, 7)"
+      />
+      <g ref={mainRef} filter="url(#unitShadow)">
         <g className={css(styles.unit)} style={unitStyle}>
           <UnitGlyph unitType={unit.type} />
         </g>
         <g transform="rotate(-90)">
           <Bar
             {...barProps}
-            y={10}
+            y={11}
             fill={style.hpColor}
             value={unit.hp / unit.type.hp}
           />
           <Bar
             {...barProps}
-            y={11}
+            y={12.2}
             fill={style.mpColor}
             value={unit.mp / unit.type.mp}
           />
           {unit.type.mana > 0 && <Bar
             {...barProps}
-            y={12}
+            y={13.4}
             fill={style.manaColor}
             value={unit.mana / unit.type.mana}
           />}

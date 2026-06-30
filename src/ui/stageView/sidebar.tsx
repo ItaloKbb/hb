@@ -2,11 +2,13 @@ import { css, StyleSheet } from 'aphrodite'
 import { cloneElement, ReactElement, ReactNode } from 'react'
 
 import { UnitAction } from '../../engine/actions/action'
-import { ICell, Terrain } from '../../engine/map'
+import { ICell } from '../../engine/map'
 import Unit, { UnitStatus } from '../../engine/unit'
+import { getTerrainConfig } from '../../engine/terrain'
 import { ITrait } from '../../engine/units/traits'
 import ActionGlyph from '../components/actionGlyph'
 import Layout from '../components/layout'
+import StatBar from '../components/statBar'
 import TraitGlyph from '../components/traitGlyph'
 import UnitGlyph from '../components/unitGlyph'
 import { useStoreSnapshot } from '../hooks/useStoreSnapshot'
@@ -17,15 +19,63 @@ import StageStore from './store'
 const styles = StyleSheet.create({
   main: {
     borderLeft: style.border,
-    width: 400,
+    width: 320,
+    flexShrink: 0,
+    background: style.panel,
   },
   container: {
-    padding: 10,
+    padding: 16,
+  },
+  sectionTitle: {
+    color: style.gold,
+    fontSize: 22,
+    margin: '0 0 12px',
+    letterSpacing: 1,
+    borderBottom: `1px solid ${style.goldDark}`,
+    paddingBottom: 8,
+  },
+  turnBadge: {
+    display: 'inline-block',
+    padding: '4px 10px',
+    background: style.surface,
+    border: `1px solid ${style.surfaceLight}`,
+    marginBottom: 12,
+    fontSize: 18,
+  },
+  factionDot: {
+    display: 'inline-block',
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+    marginRight: 6,
+    verticalAlign: 'middle',
+  },
+  unitName: {
+    fontSize: 20,
+    color: style.textColor,
+    marginBottom: 4,
+  },
+  statusLine: {
+    fontSize: 14,
+    color: style.textMuted,
+    marginBottom: 8,
+  },
+  infoBox: {
+    background: style.surface,
+    border: `1px solid ${style.surfaceLight}`,
+    padding: 12,
+    marginBottom: 12,
   },
   button: {
-    padding: 2,
+    padding: 8,
+    marginBottom: 4,
     cursor: 'pointer',
-    border: '5px solid transparent',
+    border: '2px solid transparent',
+    borderRadius: 2,
+    background: style.surface,
+    ':hover': {
+      background: style.surfaceLight,
+    },
   },
   subtitle: {
     fontSize: 'smaller',
@@ -39,13 +89,21 @@ const styles = StyleSheet.create({
   },
   selectedAction: {
     borderColor: style.gold,
+    background: style.surfaceLight,
   },
   endTurnButton: {
     padding: 20,
     textAlign: 'center',
-    background: style.darkGrey,
+    background: `linear-gradient(180deg, ${style.surfaceLight} 0%, ${style.surface} 100%)`,
     borderTop: style.border,
     cursor: 'pointer',
+    color: style.gold,
+    fontSize: 22,
+    letterSpacing: 1,
+    ':hover': {
+      background: style.surfaceLight,
+      color: style.textColor,
+    },
   },
   unitIcon: {
     width: '30%',
@@ -117,10 +175,13 @@ function renderTraitButton(trait: ITrait) {
 }
 
 function renderCellInfo(cell: ICell) {
+  const terrain = getTerrainConfig(cell.terrain)
   return (
-    <p>
-      {cell.pos.toString()} - terrain type: {Terrain[cell.terrain]}
-    </p>
+    <div className={css(styles.infoBox)}>
+      <div className={css(styles.sectionTitle)}>{terrain.name}</div>
+      <div className={css(styles.subtitle)}>{terrain.description}</div>
+      <div className={css(styles.subtitle)}>Cell {cell.pos.toString()}</div>
+    </div>
   )
 }
 
@@ -128,32 +189,28 @@ function renderUnitInfo(unit: Unit) {
   const statuses = Array.from(unit.status.keys()).map(s => UnitStatus[s])
 
   return (
-    <div>
-      <Layout direction="row" >
+    <div className={css(styles.infoBox)}>
+      <Layout direction="row">
         <UnitGlyph
           unitType={unit.type}
           classes={styles.unitIcon}
           wrapped={true}
         />
-        <Layout>
-          <div>
-            {unit.type.name}
+        <Layout grow>
+          <div className={css(styles.unitName)}>{unit.type.name}</div>
+          <div className={css(styles.statusLine)}>
+            Status: {statuses.join(', ') || '—'} · Resist {unit.resistance}
           </div>
-          <div>
-            Satus: {statuses.join() || '—'}
-          </div>
-          <div>
-            resistance: {unit.resistance}
-          </div>
-          <div className={css(styles.hpBar)}>
-            hp: {unit.hp}/{unit.type.hp}
-          </div>
-          <div className={css(styles.mpBar)}>
-            mp: {unit.mp}/{unit.type.mp}
-          </div>
-          <div className={css(styles.manaBar)}>
-            mana: {unit.mana}/{unit.type.mana}
-          </div>
+          <StatBar label="HP" value={unit.hp} max={unit.type.hp} color={style.hpColor} />
+          <StatBar label="MP" value={unit.mp} max={unit.type.mp} color={style.mpColor} />
+          {unit.type.mana > 0 && (
+            <StatBar
+              label="Mana"
+              value={unit.mana}
+              max={unit.type.mana}
+              color={style.manaColor}
+            />
+          )}
         </Layout>
       </Layout>
     </div>
@@ -201,7 +258,13 @@ export default function Sidebar() {
   return (
     <Layout classes={[styles.main]}>
       <div className={css(styles.container)}>
-        <h2>Turn: {epoch} ({currentFaction.name})</h2>
+        <div className={css(styles.turnBadge)}>
+          <span
+            className={css(styles.factionDot)}
+            style={{ background: currentFaction.color }}
+          />
+          Turn {epoch} — {currentFaction.name}
+        </div>
         {cellInfo}
         {unitInfo}
         {actionsInfo}

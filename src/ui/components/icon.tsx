@@ -13,11 +13,17 @@ export const ICON_BBOX = `${-ICON_SIZE / 2} ${-ICON_SIZE / 2} ${ICON_SIZE} ${ICO
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: 10,
-    width: 50,
-    height: 50,
+    padding: 6,
+    width: 52,
+    height: 52,
     fill: style.textColor,
-    stroke: 'black',
+    stroke: style.goldDark,
+    strokeWidth: 1.2,
+    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.45))',
+    transition: 'transform 0.15s ease, filter 0.15s ease',
+  },
+  wrapperHover: {
+    transform: 'scale(1.06)',
   },
 })
 

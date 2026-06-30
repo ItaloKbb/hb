@@ -2,17 +2,22 @@ import assert from '../engine/assert'
 import Faction from '../engine/faction'
 import Game from '../engine/game'
 import Hex from '../engine/hex'
-import HexMap, { ICell, IMap, Terrain } from '../engine/map'
+import HexMap, { ICell, IMap } from '../engine/map'
+import {
+  getTerrainConfig,
+  isDeployableTerrain,
+} from '../engine/terrain'
 import { IUnitType } from '../engine/unit'
 import { ILevelDefinition } from './levels'
 
-const CLUSTERING_PROBABILITY = .75
+const DEFAULT_CLUSTERING = 0.75
+const DEPLOY_SAFE_RADIUS = 2
 const REC_LIMIT = 100000
 
 function tryUntil<T>(
   f: () => T, predicate: (item: T) => boolean, limit = REC_LIMIT,
-) {
-  while (true) {
+): T | undefined {
+  while (limit > 0) {
     assert(limit > 0, 'recursion exceeded. Revisit your parameters')
     const item = f()
     if (predicate(item)) {
@@ -21,6 +26,8 @@ function tryUntil<T>(
 
     limit--
   }
+
+  return undefined
 }
 
 function getRandomCell(map: IMap): ICell {
@@ -33,6 +40,11 @@ function getRandomNeighbor(map: IMap, hex: Hex): Hex {
   return neighbors[Math.floor(Math.random() * neighbors.length)]!
 }
 
+function canPlaceTerrain(cell: ICell, deployOrigins: Hex[]): boolean {
+  return isDeployableTerrain(cell.terrain)
+    && deployOrigins.every(origin => cell.pos.distance(origin) > DEPLOY_SAFE_RADIUS)
+}
+
 export default function createLevel(
   def: ILevelDefinition, party: IUnitType[],
 ): Game {
@@ -40,22 +52,34 @@ export default function createLevel(
 
   // add terrains
   def.map.terrains.forEach((amount, terrain) => {
+    const clustering = getTerrainConfig(terrain).clustering || DEFAULT_CLUSTERING
     let curCell = tryUntil(
       () => getRandomCell(map),
-      c => c.terrain === Terrain.Ground,
+      c => canPlaceTerrain(c, def.partyDeployOrigins),
+      1000,
     )
+    if (!curCell) {
+      return
+    }
+
     while (amount > 0) {
       let tempPos
-      // determines if the next cell should be anywhere else or attached to
-      // the previous one
-      const cellFinder = Math.random() > CLUSTERING_PROBABILITY
+      const cellFinder = Math.random() > clustering
         ? () => getRandomCell(map)
         : () => {
-          tempPos = getRandomNeighbor(map, curCell.pos)
+          tempPos = getRandomNeighbor(map, curCell!.pos)
           return map.cellAt(tempPos)
         }
-      curCell = tryUntil(cellFinder, c => c.terrain === Terrain.Ground)
+      const nextCell = tryUntil(
+        cellFinder,
+        c => canPlaceTerrain(c, def.partyDeployOrigins),
+        1000,
+      )
+      if (!nextCell) {
+        break
+      }
 
+      curCell = nextCell
       curCell.terrain = terrain
       amount--
     }
@@ -69,14 +93,15 @@ export default function createLevel(
   // add friendly units
   party.forEach(unit => {
     let tempPos = def.partyDeployOrigins[0]!
-    tryUntil(
+    const cell = tryUntil(
       () => {
         tempPos = getRandomNeighbor(map, tempPos)
-        const c = map.cellAt(tempPos)
-        return c
+        return map.cellAt(tempPos)
       },
-      c => c.terrain === Terrain.Ground && !c.thing,
+      c => isDeployableTerrain(c.terrain) && !c.thing,
+      1000,
     )
+    assert(cell, 'could not deploy party unit')
 
     game.addUnit({ factionId: fa.id, pos: tempPos, type: unit })
   })
@@ -85,14 +110,15 @@ export default function createLevel(
   def.opponents.forEach((amount, unit) => {
     while (amount > 0) {
       let tempPos = def.partyDeployOrigins[1]!
-      tryUntil(
+      const cell = tryUntil(
         () => {
           tempPos = getRandomNeighbor(map, tempPos)
-          const c = map.cellAt(tempPos)
-          return c
+          return map.cellAt(tempPos)
         },
-        c => c.terrain === Terrain.Ground && !c.thing,
+        c => isDeployableTerrain(c.terrain) && !c.thing,
+        1000,
       )
+      assert(cell, 'could not deploy enemy unit')
 
       game.addUnit({ factionId: fb.id, pos: tempPos, type: unit })
       amount--
